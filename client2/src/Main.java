@@ -10,12 +10,10 @@ public class Main {
     private void doTest(){
         try {
 // fire to localhost port 1099
-            System.out.println(System.getProperty("java.security.policy"));
             Registry myRegistry = LocateRegistry.getRegistry("localhost", 1099);
 
 // search for CounterService
             Counter impl = (Counter) myRegistry.lookup("Login");
-            System.out.println(System.getProperty("java.security.policy"));
 // call server's method
             impl.SignIn("Sandero","aze");
             Scanner scanner=new Scanner(System.in);

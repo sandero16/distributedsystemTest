@@ -1,16 +1,22 @@
+package sample;
 import sun.rmi.runtime.Log;
 
+import java.rmi.RMISecurityManager;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-public class Main {
+public class    Main {
     private void startServer() {
+
         try {
 
 // create on port 1099
+
             Registry registry = LocateRegistry.createRegistry(1099);
-            LoginThread login=new LoginThread();
+
 // create a new service named CounterService
+
             registry.rebind("Login", new CounterImpl());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

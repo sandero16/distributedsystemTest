@@ -1,3 +1,4 @@
+package sample;
 public class LoginThread extends Thread {
     public LoginThread(){
     }
