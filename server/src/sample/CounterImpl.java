@@ -13,6 +13,7 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
     ArrayList<Integer> sessiontoken=new ArrayList<>();
     ArrayList<Integer> waitingPlayers=new ArrayList<>();
     HashMap spelersessiontoken=new HashMap();
+    HashMap<Integer, Boolean> spelergevonden=new HashMap();
 
     //ArrayList<Game>busyGames=new ArrayList<>();
     HashMap busyGame=new HashMap();
@@ -51,7 +52,16 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
     public String geefWW(String key){
         return hashMap.get(key).toString();
     }
+    @Override
+    public void changeBeurt(int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        game.changeBeurt(sessiontoken);
 
+    }
+    public boolean checkBeurt(int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        return game.checkBeurt(sessiontoken);
+    }
     @Override
     public void sendAndereGok(int [][]gok, int i){
     //    player =i;
@@ -97,29 +107,67 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
         System.out.println("connectie is er");
     }
     @Override
-    public void setGame(int sessiontoken){
+    public boolean setGame(int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
         game.generateMatrix();
         System.out.println("matrix gegenereerd");
+        if(game.getBeurt()==sessiontoken){
+            System.out.println("juist");
+            return true;
+        }
+        else {
+            System.out.println("fout");
+            return false;
+        }
     }
     @Override
     public boolean vindtTegenspeler(int token){
-        System.out.println();
-        System.out.println();
-        System.out.println("connectie bestaat");
         if(waitingPlayers.isEmpty()){
             waitingPlayers.add(token);
+            spelergevonden.put(token, false);
             return false;
         }
+
+        else if(waitingPlayers.get(0)==token){
+            System.out.println("vindtegenspeler");
+            return spelergevonden.get(token);
+        }
+
         else{
             int player2=waitingPlayers.get(0);
+            System.out.println("speler: "+token + " tegen speler: "+player2);
             Game tempgame=new Game(token,player2);
+            spelergevonden.put(player2,true);
             busyGame.put(token, tempgame);
             busyGame.put(player2, tempgame);
             return true;
         }
 
+
     }
+
+    @Override
+    public int[]getAndereGok(int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        return game.getTegenspelerGok();
+    }
+    public int getZet(int i, int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        int value=game.getFromMatrix(i);
+        System.out.println("value");
+        return value;
+    }
+    @Override
+    public boolean getResult(int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        return game.getResult(sessiontoken);
+    }
+    @Override
+    public int getScore(int sessiontoken){
+        Game game=(Game)busyGame.get(sessiontoken);
+        return game.getScore(sessiontoken);
+    }
+
     public void writePlayers(){
         for (Object name: hashMap.keySet()){
 
