@@ -39,6 +39,10 @@ public class Game {
         System.out.println("speler 1: "+sessionToken1);
         System.out.println("speler 2: "+sessionToken2);
         if(!initialized) {
+            score1=0;
+            score2=0;
+            keuze1=-1;
+            keuze2=-1;
             gegokt=new int[2];
             beurt=(int)(Math.random()*2)+1;
             initialized=true;
@@ -92,16 +96,22 @@ public class Game {
     }
     public void changeBeurt(int sessiontoken){
         //beveiliging
+        System.out.println("score1: "+score1+" score2: "+score2);
+        System.out.println("keuze1: "+keuze1+  " Keuze2: "+keuze2);
+        System.out.println("sessiontoken meegegeven: "+sessiontoken+" beurt");
         if(sessiontoken==sessionToken1&&beurt==1){
+            System.out.println("1 score aant het geven");
             if(keuze1==keuze2)score1++;
             keuze1=-1;keuze2=-1;
             beurt=2;
         }
         else if(sessiontoken==sessionToken2&&beurt==2){
+            System.out.println("2 score aan het geven");
             if(keuze1==keuze2)score2++;
             keuze1=-1;keuze2=-1;
             beurt=1;
         }
+        System.out.println("score1: "+score1+" score2: "+score2);
 
     }
     public boolean checkBeurt(int sessiontoken){
@@ -132,10 +142,10 @@ public class Game {
     }
     public int getScore(int sessiontoken){
         if(sessiontoken==sessionToken1){
-            return score1;
+            return score2;
         }
         else{
-            return score2;
+            return score1;
         }
     }
 
