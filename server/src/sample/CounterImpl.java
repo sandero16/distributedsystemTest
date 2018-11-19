@@ -11,11 +11,14 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
 
     HashMap hashMap=new HashMap();
     ArrayList<Integer> sessiontoken=new ArrayList<>();
-    ArrayList<Integer> waitingPlayers=new ArrayList<>();
-    HashMap spelersessiontoken=new HashMap();
-    HashMap<Integer, Boolean> spelergevonden=new HashMap();
 
-    //ArrayList<Game>busyGames=new ArrayList<>();
+
+    ArrayList<Integer> waitingPlayers2=new ArrayList<>();
+    ArrayList<Integer> waitingPlayers3=new ArrayList<>();
+    ArrayList<Integer> waitingPlayers4=new ArrayList<>();
+    ArrayList<Integer> occupiedPlayers=new ArrayList<>();
+
+    HashMap spelersessiontoken=new HashMap();
     HashMap busyGame=new HashMap();
 
     @Override
@@ -23,25 +26,18 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
         System.out.println("username: "+a+ "ww: "+b);
         hashMap.put(a, b );
         spelersessiontoken.put(a, null);
-        //writePlayers();
     }
 
     @Override
     public int LogIn(String a, String b) throws RemoteException {
         if(hashMap.get(a).equals(b)){
-            //kijken of speler al een session token heeft
             if(spelersessiontoken.get(a)!=null){
-                //TODO kijken of session token nog niet vervallen is
-
-                System.out.println("token bestaat"+(int)spelersessiontoken.get(a));
-
                 return (int)spelersessiontoken.get(a);
             }
             else{
                 int token=sessiontoken.size();
                 sessiontoken.add(token);
                 spelersessiontoken.put(a,token);
-                System.out.println("token"+token);
                 return token;
             }
         }
@@ -60,48 +56,10 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
     }
     public boolean checkBeurt(int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
-        return game.checkBeurt(sessiontoken);
-    }
-    @Override
-    public void sendAndereGok(int [][]gok, int i){
-    //    player =i;
-       // this.gok=gok;
+        return (sessiontoken==game.checkBeurt());
     }
 
-  /*  @Override
-    public int[][] getAndereGok(int i){
-      /*  if(player!=i) {
-            return gok;
-        }
-        else return null;
-    }*/
 
-    @Override
-    public void NewPlayer(int token){
-       /* if(waitingGame.isEmpty()){
-            waitingGame.add(token);
-
-        }
-        else{
-            int token1=waitingGame.get(0);
-            waitingGame.remove(0);
-            Game tempGame=new Game(token1, token);
-            busyGame.put(token1, tempGame);
-            busyGame.put(token, tempGame);
-
-        }*/
-    }
-    @Override
-    public boolean zoekAnderespeler(int token){
-        /*//betere manier om te checken of andere speler
-        if(waitingGame.contains(token)){
-            return false;
-        }
-        else{
-            return true;
-        }*/
-            return true;
-    }
     @Override
     public void testConnectie(){
         System.out.println("connectie is er");
@@ -110,51 +68,97 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
     public boolean setGame(int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
         game.generateMatrix();
-        System.out.println("matrix gegenereerd");
-        if(game.getBeurt()==sessiontoken){
-            System.out.println("juist");
+        if(game.checkBeurt()==sessiontoken){
             return true;
         }
         else {
-            System.out.println("fout");
             return false;
         }
     }
     @Override
-    public boolean vindtTegenspeler(int token){
-        if(waitingPlayers.isEmpty()){
-            waitingPlayers.add(token);
-            spelergevonden.put(token, false);
-            return false;
-        }
+    public void addToGame(int token, int aantalspelers){
+        System.out.println("1token: "+token);
+        if(aantalspelers==2) {
 
-        else if(waitingPlayers.get(0)==token){
-            System.out.println("vindtegenspeler");
-            return spelergevonden.get(token);
-        }
+            if (!waitingPlayers2.contains(token)) {
+                waitingPlayers2.add(token);
+            }
+            if (waitingPlayers2.size() == 2&&waitingPlayers2.get(1)==token) {
+                System.out.println("3token: "+token);
+                int speler1 = waitingPlayers2.get(0);
+                int speler2 = waitingPlayers2.get(1);
+                waitingPlayers2.clear();
+                Game game = new Game(speler1, speler2);
+                busyGame.put(speler1, game);
+                busyGame.put(speler2, game);
+                occupiedPlayers.add(speler1);
+                occupiedPlayers.add(speler2);
+            }
 
+        }
+        else if(aantalspelers==3) {
+            if (!waitingPlayers3.contains(token)) {
+                waitingPlayers3.add(token);
+            }
+            if (waitingPlayers3.size() == 3) {
+                int speler1 = waitingPlayers3.get(0);
+                int speler2 = waitingPlayers3.get(1);
+                int speler3 = waitingPlayers3.get(2);
+                waitingPlayers3.clear();
+                System.out.println(speler1+" "+speler2+" "+ speler3+" ");
+                Game game = new Game(speler1, speler2 ,speler3);
+
+                busyGame.put(speler1, game);
+                busyGame.put(speler2, game);
+                busyGame.put(speler3, game);
+                occupiedPlayers.add(speler1);
+                occupiedPlayers.add(speler2);
+                occupiedPlayers.add(speler3);
+
+            }
+
+        }
         else{
-            int player2=waitingPlayers.get(0);
-            System.out.println("speler: "+token + " tegen speler: "+player2);
-            Game tempgame=new Game(token,player2);
-            spelergevonden.put(player2,true);
-            busyGame.put(token, tempgame);
-            busyGame.put(player2, tempgame);
-            return true;
+            if (!waitingPlayers4.contains(token)) {
+                waitingPlayers4.add(token);
+            }
+            if (waitingPlayers4.size() == 4) {
+                int speler1 = waitingPlayers4.get(0);
+                int speler2 = waitingPlayers4.get(1);
+                int speler3 = waitingPlayers4.get(2);
+                int speler4 = waitingPlayers4.get(3);
+                waitingPlayers4.clear();
+                Game game = new Game(speler1, speler2 ,speler3, speler4);
+
+                busyGame.put(speler1, game);
+                busyGame.put(speler2, game);
+                busyGame.put(speler3, game);
+                busyGame.put(speler4, game);
+
+                occupiedPlayers.add(speler1);
+                occupiedPlayers.add(speler2);
+                occupiedPlayers.add(speler3);
+
+            }
+
         }
+    }
 
+    @Override
+    public boolean vindtTegenspeler(int token){
 
+       return occupiedPlayers.contains(token);
     }
 
     @Override
     public int[]getAndereGok(int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
-        return game.getTegenspelerGok();
+        int[]gok=game.getTegenspelerGok(sessiontoken);
+        return gok;
     }
     public int getZet(int i, int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
         int value=game.getFromMatrix(i);
-        System.out.println("value");
         return value;
     }
     @Override
@@ -166,16 +170,5 @@ public class CounterImpl extends UnicastRemoteObject implements Counter{
     public int getScore(int sessiontoken){
         Game game=(Game)busyGame.get(sessiontoken);
         return game.getScore(sessiontoken);
-    }
-
-    public void writePlayers(){
-        for (Object name: hashMap.keySet()){
-
-            String key =name.toString();
-            String value = hashMap.get(key).toString();
-            System.out.println(key + " " + value);
-
-
-        }
     }
 }

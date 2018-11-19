@@ -6,10 +6,9 @@ import java.util.List;
 
 public class Game {
     private int gameId;
-    private int sessionToken1;
-    private int sessionToken2;
-    private int score1;
-    private int score2;
+
+    private ArrayList<Integer>players;
+    private ArrayList<Integer>scores;
 
     private int keuze1;
     private int keuze2;
@@ -17,34 +16,81 @@ public class Game {
     private int[][] matrix;
     private int[] gegokt;
     private boolean initialized;
-    boolean update=false;
+    private ArrayList<Boolean>update;
 
     public  Game(int player1, int player2){
-        sessionToken1=player1;
-        sessionToken2=player2;
+        players=new ArrayList<>();
+        scores=new ArrayList<>();
+        update=new ArrayList<>();
+        for(int i=0;i<2;i++) {
+            update.add(false);
+        }
+        players.add(player1);
+        players.add(player2);
+
+        initialized=false;
+    }
+    public Game(int player1, int player2, int player3){
+        players=new ArrayList<>();
+        scores=new ArrayList<>();
+        update=new ArrayList<>();
+
+        for(int i=0;i<3;i++) {
+            update.add(false);
+        }
+
+        players.add(player1);
+        players.add(player2);
+        players.add(player3);
+
+        initialized=false;
+    }
+    public Game(int player1, int player2, int player3, int player4){
+        players=new ArrayList<>();
+        scores=new ArrayList<>();
+        update=new ArrayList<>();
+
+        for(int i=0;i<4;i++) {
+            update.add(false);
+        }
+
+        players.add(player1);
+        players.add(player2);
+        players.add(player3);
+        players.add(player4);
+
         initialized=false;
     }
     public void setGameId(int id){
         gameId=id;
     }
-    public void setPlayer2(int token){
-        sessionToken2=token;
-    }
-    public int getPlayer1token(){
-        return sessionToken1;
-    }
+
     public void generateMatrix(){
 
         System.out.println("generating"+ " beurt: "+beurt);
-        System.out.println("speler 1: "+sessionToken1);
-        System.out.println("speler 2: "+sessionToken2);
+        for (int i: players) {
+            System.out.print(i+" ");
+        }
+        System.out.println();
         if(!initialized) {
-            score1=0;
-            score2=0;
+            System.out.println("for loop");
+            for(int i=0;i<players.size();i++){
+                System.out.println("i :"+players.get(i));
+            }
+            System.out.println("foreach");
+            for (int i:players) {
+                System.out.println("player: "+i);
+            }
+
+            for(int i=0;i<players.size();i++){
+                scores.add(0);
+            }
+
             keuze1=-1;
             keuze2=-1;
             gegokt=new int[2];
-            beurt=(int)(Math.random()*2)+1;
+
+            beurt=players.get(0);
             initialized=true;
             List<Integer> solution = new ArrayList<>();
             for (int i = 0; i < 8; i++) {
@@ -67,16 +113,7 @@ public class Game {
         }
 
     }
-    public int getBeurt(){
-        if(beurt==1){
-            System.out.println("token: "+sessionToken1);
-            return sessionToken1;
-        }
-        else{
-            System.out.println("token: "+sessionToken2);
-            return sessionToken2;
-        }
-    }
+
     public int getFromMatrix(int i){
         System.out.println("value= "+i);
         i--;
@@ -85,7 +122,9 @@ public class Game {
         System.out.println("rij "+row+ "column: "+column);
         gegokt[0]=i;
         gegokt[1]=matrix[row][column];
-        update=true;
+        for(int j=0;j<update.size();j++){
+            update.set(j,true);
+        }
         if(keuze1==-1){
             keuze1=matrix[row][column];
         }
@@ -96,36 +135,29 @@ public class Game {
     }
     public void changeBeurt(int sessiontoken){
         //beveiliging
-        System.out.println("score1: "+score1+" score2: "+score2);
-        System.out.println("keuze1: "+keuze1+  " Keuze2: "+keuze2);
-        System.out.println("sessiontoken meegegeven: "+sessiontoken+" beurt");
-        if(sessiontoken==sessionToken1&&beurt==1){
-            System.out.println("1 score aant het geven");
-            if(keuze1==keuze2)score1++;
-            keuze1=-1;keuze2=-1;
-            beurt=2;
-        }
-        else if(sessiontoken==sessionToken2&&beurt==2){
-            System.out.println("2 score aan het geven");
-            if(keuze1==keuze2)score2++;
-            keuze1=-1;keuze2=-1;
-            beurt=1;
-        }
-        System.out.println("score1: "+score1+" score2: "+score2);
-
-    }
-    public boolean checkBeurt(int sessiontoken){
-        if(beurt==1) {
-            return (sessiontoken == sessionToken1);
+        int index=players.indexOf(beurt);
+        if(keuze1==keuze2)scores.set(index,scores.get(index)+1);
+        keuze1=-1;keuze2=-1;
+        if(index==(players.size()-1)){
+            beurt=players.get(0);
         }
         else{
-            return (sessiontoken==sessionToken2);
+            beurt=players.get(index+1);
         }
 
     }
-    public int[] getTegenspelerGok(){
-        if(update) {
-            update=false;
+    public int checkBeurt(){
+        return beurt;
+
+    }
+    public int getIndex(int sessiontoken){
+        return players.indexOf(sessiontoken);
+    }
+    public int[] getTegenspelerGok(int sessiontoken){
+        int index=players.indexOf(sessiontoken);
+        System.out.println("index: "+index);
+        if(update.get(index)) {
+            update.set(index,false);
             return gegokt;
         }
         else{
@@ -133,20 +165,18 @@ public class Game {
         }
     }
     public boolean getResult(int sessiontoken){
-        if(sessiontoken==sessionToken1){
-            return score1>score2;
+        int index=players.indexOf(sessiontoken);
+        boolean gewonnen=true;
+        int hoogste=scores.get(index);
+        for(int i=0;i<scores.size();i++){
+            if(index!=i){
+                if(scores.get(i)>hoogste)gewonnen=false;
+            }
         }
-        else{
-            return score2>score1;
-        }
+        return gewonnen;
     }
     public int getScore(int sessiontoken){
-        if(sessiontoken==sessionToken1){
-            return score2;
-        }
-        else{
-            return score1;
-        }
+       return scores.get(players.indexOf(sessiontoken));
     }
 
 }
